@@ -9,7 +9,7 @@ import java.io.DataInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 
-class File {
+class ArchiveFile {
     /**
      * Archive
      */
@@ -31,7 +31,7 @@ class File {
      * @param entry entry data
      * @param path effective path for the file
      */
-    public File(Archive archive, ArchiveEntry entry, String path) {
+    public ArchiveFile(Archive archive, ArchiveEntry entry, String path) {
         this.archive = archive;
         this.entry = entry;
         this.path = path;
@@ -55,28 +55,28 @@ class File {
     public byte[] Get() throws IOException {
         byte[] buffer = GetFromContainer();
 
-        //if ((entry.flags & VeloxConfig.RAW) == VeloxConfig.RAW) {
-        //  // RAW
-        //  //  We do nothing here
-        //}
+        if ((entry.flags & VeloxConfig.CRYPT) == VeloxConfig.CRYPT) {
+            // ENCRYPTED
+            buffer = XXTEA.decrypt(buffer, path.getBytes());
+        }
 
         if ((entry.flags & VeloxConfig.COMPRESSED) == VeloxConfig.COMPRESSED) {
             // COMPRESSED
             LZ4Factory factory = LZ4Factory.fastestInstance();
             LZ4FastDecompressor decompressor = factory.fastDecompressor();
             byte[] newBuffer = new byte[entry.diskSize];
-            int compressedLength2 = decompressor.decompress(buffer, 0, newBuffer, 0, entry.diskSize);
-            if (compressedLength2 != entry.size) {
+            int decompressedLength = decompressor.decompress(buffer, 0, newBuffer, 0, entry.diskSize);
+            if (decompressedLength != entry.size) {
                 // Something went wrong here
                 throw new IOException("Failed to decompress: " + path);
             }
             buffer = newBuffer; // Move the buffer
         }
 
-        if ((entry.flags & VeloxConfig.CRYPT) == VeloxConfig.CRYPT) {
-            // ENCRYPTED
-            buffer = XXTEA.decrypt(buffer, path.getBytes());
-        }
+        //if ((entry.flags & VeloxConfig.RAW) == VeloxConfig.RAW) {
+        //  // RAW
+        //  //  We do nothing here
+        //}
 
         return buffer;
     }

@@ -1,5 +1,6 @@
 package com.philip1337.veloxio;
 
+import com.philip1337.veloxio.utils.XXHash;
 import net.jpountz.xxhash.StreamingXXHash64;
 import net.jpountz.xxhash.XXHashFactory;
 
@@ -9,16 +10,6 @@ import java.io.IOException;
 import java.util.HashMap;
 
 class Provider {
-    /**
-     * Hasher
-     */
-    private XXHashFactory hasher;
-
-    /**
-     * Hashing buffer
-     */
-    private byte[] buffer;
-
     /**
      * Archives
      */
@@ -33,35 +24,8 @@ class Provider {
      * Constructor
      */
     public Provider() {
-        hasher = XXHashFactory.fastestInstance();
-        buffer = new byte[1024];
         archives = new HashMap();
         loader = new ArchiveLoader();
-    }
-
-    /**
-     * XXHash algorithm
-     * - Hash string into a hash64
-     * @param path file path
-     * @return long
-     * @throws IOException Buffer error
-     */
-    private long GetPath(String path) throws IOException {
-        ByteArrayInputStream in = new ByteArrayInputStream(path.getBytes("UTF-8"));
-
-        // Build hash
-        StreamingXXHash64 hash64 = hasher.newStreamingHash64(VeloxConfig.seed);
-
-        // Buffer
-        for (;;) {
-            int read = in.read(buffer);
-            if (read == -1) {
-                break;
-            }
-            hash64.update(buffer, 0, read);
-        }
-
-        return hash64.getValue();
     }
 
     /**
@@ -94,8 +58,8 @@ class Provider {
      * @return File
      * @throws IOException File not found
      */
-    public File Get(String path) throws IOException {
-        long hashedPath = GetPath(path);
+    public ArchiveFile Get(String path) throws IOException {
+        long hashedPath = loader.GetHasher().GetPath(path);
         //archives.forEach((k,v)-> {
         //    if (v.HasFile(hashedPath)) {
         //        ArchiveEntry e = v.GetEntry(hashedPath);
@@ -106,7 +70,7 @@ class Provider {
         for(HashMap.Entry<String, Archive> entry : archives.entrySet()) {
             Archive archive = entry.getValue();
             if (archive.HasFile(hashedPath)) {
-                return new File(archive, archive.GetEntry(hashedPath), path);
+                return new ArchiveFile(archive, archive.GetEntry(hashedPath), path);
             }
         }
 

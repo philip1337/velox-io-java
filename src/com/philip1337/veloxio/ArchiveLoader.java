@@ -1,10 +1,38 @@
 package com.philip1337.veloxio;
 
 import com.philip1337.veloxio.utils.Stream;
+import com.philip1337.veloxio.utils.XXHash;
 
 import java.io.IOException;
 
 public class ArchiveLoader {
+    /**
+     * Hasher
+     */
+    private XXHash hasher;
+
+    /**
+     * Loader constructor
+     */
+    public ArchiveLoader() {
+        hasher = new XXHash();
+    }
+
+    /**
+     * Hasher used to hash paths
+     * @return XXHash
+     */
+    public XXHash GetHasher() {
+        return hasher;
+    }
+
+    /**
+     * Load archive
+     * @param path String
+     * @param a Archive
+     * @return boolean true if success
+     * @throws IOException if archive stream is invalid
+     */
     public boolean Load(String path, Archive a) throws IOException {
         a.SetPath(path);
 
@@ -64,7 +92,6 @@ public class ArchiveLoader {
             entry.flags = stream.ReadInt();
             entry.offset = stream.ReadInt();
             entry.size = stream.ReadInt();
-            entry.decryptedSize = stream.ReadInt();
 
             // Register file
             a.RegisterFile(entry);
