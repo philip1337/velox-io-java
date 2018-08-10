@@ -1,7 +1,8 @@
 package com.philip1337.veloxio;
 
+import com.philip1337.veloxio.utils.Stream;
+
 import java.io.FileNotFoundException;
-import java.io.FileInputStream;
 import java.util.HashMap;
 
 class Archive {
@@ -18,7 +19,12 @@ class Archive {
     /**
      * File handle (reader)
      */
-    private FileInputStream handle;
+    private Stream handle;
+
+    /**
+     * ArchiveHeader
+     */
+    private ArchiveHeader header;
 
     /**
      * Archive constructor
@@ -26,7 +32,7 @@ class Archive {
     public Archive(String path) throws FileNotFoundException {
         this.files = new HashMap();
         this.path = path;
-        this.handle = new FileInputStream(path);
+        this.handle = new Stream(path);
     }
 
     /**
@@ -66,7 +72,31 @@ class Archive {
      * Get handle
      * @return FileReader
      */
-    public FileInputStream GetHandle() {
+    public Stream GetHandle() {
         return this.handle;
+    }
+
+    /**
+     * Register file
+     * @param entry ArchiveEntry from the file
+     */
+    public void RegisterFile(ArchiveEntry entry) {
+        files.put(entry.path, entry);
+    }
+
+    /**
+     * Archive header
+     * @param header ArchiveHeader
+     */
+    public void SetHeader(ArchiveHeader header) {
+        this.header = header;
+    }
+
+    /**
+     * Get header
+     * @return ArchiveHeader containing archive informations
+     */
+    public ArchiveHeader GetHeader() {
+        return this.header;
     }
 }

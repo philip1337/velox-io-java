@@ -72,15 +72,20 @@ class Provider {
      */
     public boolean RegisterArchive(String path) throws FileNotFoundException {
         // Archive already registered
-        if (archives.containsKey(path)) {
+        if (archives.containsKey(path))
             return false;
-        }
 
         Archive a = new Archive(path);
-        if (!loader.Load(path, a))
-            return false;
+        try {
+            if (loader.Load(path, a)) {
+                archives.put(path, a);
+                return true;
+            }
+        } catch (IOException e) {
+            // e.printStackTrace();
+        }
 
-        return true;
+        return false;
     }
 
     /**
