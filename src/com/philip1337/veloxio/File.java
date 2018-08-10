@@ -4,6 +4,11 @@ import com.philip1337.veloxio.utils.XXTEA;
 import net.jpountz.lz4.LZ4Factory;
 import net.jpountz.lz4.LZ4FastDecompressor;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+
 class File {
     /**
      * Archive
@@ -36,11 +41,18 @@ class File {
      * Get file buffer
      * @return byte array (containing the buffer)
      */
-    private byte[] GetFromContainer() {
-        return new byte[1];
+    private byte[] GetFromContainer() throws IOException {
+        DataInputStream stream = new DataInputStream(this.archive.GetHandle());
+
+        byte[] buffer = new byte[this.entry.size];
+        int read = stream.read(buffer, this.entry.offset, this.entry.size);
+        if (read != this.entry.size)
+            throw new IOException("Failed to read file from archive: " + archive.GetPath());
+
+        return buffer;
     }
 
-    public byte[] Get() {
+    public byte[] Get() throws IOException {
         byte[] buffer = GetFromContainer();
 
         //if ((entry.flags & VeloxConfig.RAW) == VeloxConfig.RAW) {
@@ -55,7 +67,8 @@ class File {
             byte[] newBuffer = new byte[entry.diskSize];
             int compressedLength2 = decompressor.decompress(buffer, 0, newBuffer, 0, entry.diskSize);
             if (compressedLength2 != entry.size) {
-                // Somehting went wrong here
+                // Something went wrong here
+                throw new IOException("Failed to decompress: " + path);
             }
             buffer = newBuffer; // Move the buffer
         }

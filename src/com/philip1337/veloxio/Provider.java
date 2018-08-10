@@ -4,6 +4,7 @@ import net.jpountz.xxhash.StreamingXXHash64;
 import net.jpountz.xxhash.XXHashFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -67,15 +68,15 @@ class Provider {
      * Register archive
      * @param path to the archive
      * @return booolean true if it was successfull
-     * @throws IOException
+     * @throws FileNotFoundException
      */
-    public boolean RegisterArchive(String path) {
+    public boolean RegisterArchive(String path) throws FileNotFoundException {
         // Archive already registered
         if (archives.containsKey(path)) {
             return false;
         }
 
-        Archive a = new Archive();
+        Archive a = new Archive(path);
         if (!loader.Load(path, a))
             return false;
 

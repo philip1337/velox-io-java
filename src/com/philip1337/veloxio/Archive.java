@@ -1,5 +1,7 @@
 package com.philip1337.veloxio;
 
+import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.util.HashMap;
 
 class Archive {
@@ -14,10 +16,17 @@ class Archive {
     private String path;
 
     /**
+     * File handle (reader)
+     */
+    private FileInputStream handle;
+
+    /**
      * Archive constructor
      */
-    public Archive() {
-        files = new HashMap();
+    public Archive(String path) throws FileNotFoundException {
+        this.files = new HashMap();
+        this.path = path;
+        this.handle = new FileInputStream(path);
     }
 
     /**
@@ -26,6 +35,14 @@ class Archive {
      */
     public void SetPath(String path) {
         this.path = path;
+    }
+
+    /**
+     * Get path
+     * @return
+     */
+    public String GetPath() {
+        return path;
     }
 
     /**
@@ -43,5 +60,13 @@ class Archive {
      */
     public ArchiveEntry GetEntry(long path) {
         return files.get(path);
+    }
+
+    /**
+     * Get handle
+     * @return FileReader
+     */
+    public FileInputStream GetHandle() {
+        return this.handle;
     }
 }
