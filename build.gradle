@@ -1,0 +1,30 @@
+apply plugin: 'java'
+apply plugin: 'java-library'
+apply plugin: 'distribution'
+
+configurations {
+	provided
+}
+
+repositories {
+	mavenCentral()
+	//maven{url "https://mvnrepository.com/artifact"}
+}
+
+sourceSets {
+	main.java.srcDirs = ['src']
+}
+
+dependencies{
+	// https://mvnrepository.com/artifact/org.lz4/lz4-java
+	compile group: 'org.lz4', name: 'lz4-java', version: '1.4.1'
+}
+
+version = '0.0.1'
+
+jar {
+	manifest {
+		attributes('Implementation-Title': project.name,
+				   'Implementation-Version': project.version)
+	}
+}
