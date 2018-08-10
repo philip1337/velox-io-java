@@ -1,10 +1,5 @@
 package com.philip1337.veloxio;
 
-import com.philip1337.veloxio.utils.XXHash;
-import net.jpountz.xxhash.StreamingXXHash64;
-import net.jpountz.xxhash.XXHashFactory;
-
-import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;

@@ -9,7 +9,7 @@ class Archive {
     /**
      * Files
      */
-    private HashMap<Long , ArchiveEntry> files;
+    private HashMap<Long, ArchiveEntry> files;
 
     /**
      * Archive path on disk
@@ -37,6 +37,7 @@ class Archive {
 
     /**
      * Set path
+     *
      * @param path to the file / archive container on disk
      */
     public void SetPath(String path) {
@@ -45,6 +46,7 @@ class Archive {
 
     /**
      * Get path
+     *
      * @return
      */
     public String GetPath() {
@@ -53,6 +55,7 @@ class Archive {
 
     /**
      * Has file
+     *
      * @return true if archive owns the file
      */
     public boolean HasFile(long path) {
@@ -61,6 +64,7 @@ class Archive {
 
     /**
      * Get archive entry
+     *
      * @param path to the file
      * @return ArchiveEntry for the file
      */
@@ -70,6 +74,7 @@ class Archive {
 
     /**
      * Get handle
+     *
      * @return FileReader
      */
     public Stream GetHandle() {
@@ -78,6 +83,7 @@ class Archive {
 
     /**
      * Register file
+     *
      * @param entry ArchiveEntry from the file
      */
     public void RegisterFile(ArchiveEntry entry) {
@@ -86,6 +92,7 @@ class Archive {
 
     /**
      * Archive header
+     *
      * @param header ArchiveHeader
      */
     public void SetHeader(ArchiveHeader header) {
@@ -94,6 +101,7 @@ class Archive {
 
     /**
      * Get header
+     *
      * @return ArchiveHeader containing archive informations
      */
     public ArchiveHeader GetHeader() {

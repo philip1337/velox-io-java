@@ -4,7 +4,6 @@ import com.philip1337.veloxio.utils.XXHash;
 import com.philip1337.veloxio.utils.XXTEA;
 import net.jpountz.lz4.LZ4Compressor;
 import net.jpountz.lz4.LZ4Factory;
-import net.jpountz.lz4.LZ4FastDecompressor;
 
 import java.io.File;
 import java.io.FileInputStream;

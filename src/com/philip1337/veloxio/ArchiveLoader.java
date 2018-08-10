@@ -20,6 +20,7 @@ public class ArchiveLoader {
 
     /**
      * Hasher used to hash paths
+     *
      * @return XXHash
      */
     public XXHash GetHasher() {
@@ -28,8 +29,9 @@ public class ArchiveLoader {
 
     /**
      * Load archive
+     *
      * @param path String
-     * @param a Archive
+     * @param a    Archive
      * @return boolean true if success
      * @throws IOException if archive stream is invalid
      */
@@ -49,6 +51,7 @@ public class ArchiveLoader {
 
     /**
      * Validate header
+     *
      * @param a Archive container
      * @return boolean true if everything went well
      */
@@ -70,6 +73,7 @@ public class ArchiveLoader {
 
     /**
      * Read entries from index
+     *
      * @param a Archive container
      * @return boolean if success true
      * @throws IOException if stream is invalid
@@ -82,7 +86,7 @@ public class ArchiveLoader {
         stream.Seek(header.offset);
 
         // Read index
-        for(int i = 0; i<=header.count; i++) {
+        for (int i = 0; i <= header.count; i++) {
             // Archive entry
             ArchiveEntry entry = new ArchiveEntry();
 
