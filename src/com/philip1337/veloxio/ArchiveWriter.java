@@ -49,6 +49,7 @@ public class ArchiveWriter {
         this.files = new HashMap();
         this.path = path;
         this.hasher = new XXHash();
+        this.header = new ArchiveHeader();
         this.output = new FileOutputStream(path);
 
         // Initial position after skipping the archive header padding
