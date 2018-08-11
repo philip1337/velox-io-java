@@ -5,11 +5,8 @@ import com.philip1337.veloxio.utils.XXTEA;
 import net.jpountz.lz4.LZ4Compressor;
 import net.jpountz.lz4.LZ4Factory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 public class ArchiveWriter {
@@ -26,7 +23,7 @@ public class ArchiveWriter {
     /**
      * Files
      */
-    private HashMap<Long , ArchiveEntry> files;
+    private HashMap<Long, ArchiveEntry> files;
 
     /**
      * Hasher
@@ -45,6 +42,7 @@ public class ArchiveWriter {
 
     /**
      * Constructor
+     *
      * @param path String to the output
      */
     public ArchiveWriter(String path) throws FileNotFoundException {
@@ -52,11 +50,18 @@ public class ArchiveWriter {
         this.path = path;
         this.hasher = new XXHash();
         this.output = new FileOutputStream(path);
-        this.currentOffset = GetArchiveHeaderLength(); // Initial position after skipping the archive header padding
+
+        // Initial position after skipping the archive header padding
+        try {
+            this.output.getChannel().position(GetArchiveHeaderLength());
+        } catch (IOException e) {
+            throw new FileNotFoundException("Invalid file stream: " + this.path);
+        }
     }
 
     /**
      * This is the initi
+     *
      * @return
      */
     public int GetArchiveHeaderLength() {
@@ -75,7 +80,7 @@ public class ArchiveWriter {
         FileInputStream input = new FileInputStream(file);
 
         // Read into byte array
-        byte[] buffer = new byte[(int)file.length()];
+        byte[] buffer = new byte[(int) file.length()];
         int offset = 0;
         int numRead = 0;
         while (numRead >= 0) {
@@ -97,12 +102,12 @@ public class ArchiveWriter {
             LZ4Factory factory = LZ4Factory.fastestInstance();
             LZ4Compressor compressor = factory.fastCompressor();
 
-            int decompressedLength = (int)file.length();
+            int decompressedLength = (int) file.length();
 
             int maxCompressedLength = compressor.maxCompressedLength(decompressedLength);
             byte[] compressed = new byte[maxCompressedLength];
             entry.size = compressor.compress(buffer, 0, decompressedLength, compressed, 0,
-                                             maxCompressedLength);
+                    maxCompressedLength);
             buffer = compressed;
         }
 
@@ -111,8 +116,88 @@ public class ArchiveWriter {
             buffer = XXTEA.encrypt(buffer, path.getBytes());
         }
 
-        // Move offset
-        this.currentOffset += 0;
+        // Write to file
+        output.write(buffer);
+
+        // Add file to archive index
+        files.put(hashedPath, entry);
+        return true;
+    }
+
+    /**
+     * Write index
+     *
+     * @return boolean true if success
+     */
+    public boolean WriteIndex() {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+
+        try {
+            header.offset = (int) output.getChannel().position();
+
+            for (HashMap.Entry<Long, ArchiveEntry> set : files.entrySet()) {
+                ArchiveEntry entry = set.getValue();
+
+                // Path
+                buffer.reset();
+                buffer.putLong(entry.path);
+                output.write(buffer.array());
+
+                // Disk size
+                buffer.reset();
+                buffer.putInt(entry.diskSize);
+                output.write(buffer.array());
+
+                // Flags
+                buffer.reset();
+                buffer.putInt(entry.flags);
+                output.write(buffer.array());
+
+                // Offset
+                buffer.reset();
+                buffer.putInt(entry.offset);
+                output.write(buffer.array());
+
+                // Size
+                buffer.reset();
+                buffer.putInt(entry.size);
+                output.write(buffer.array());
+            }
+        } catch (IOException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Write header
+     *
+     * @return boolean true if success
+     */
+    public boolean WriteHeader() {
+        header.count = files.size();
+        header.magic = VeloxConfig.magic;
+
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        try {
+            this.output.getChannel().position(0);
+
+            // Count
+            buffer.reset();
+            buffer.putInt(header.count);
+            output.write(buffer.array());
+
+            // Offset
+            buffer.reset();
+            buffer.putInt(header.offset);
+            output.write(buffer.array());
+
+            // Magic
+            output.write(header.magic.getBytes());
+        } catch (IOException e) {
+            return false;
+        }
         return true;
     }
 }

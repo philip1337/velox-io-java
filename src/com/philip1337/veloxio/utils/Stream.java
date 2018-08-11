@@ -14,6 +14,7 @@ public final class Stream extends FileInputStream {
 
     /**
      * Stream
+     *
      * @param name String
      * @throws FileNotFoundException if file not found
      */
@@ -24,6 +25,7 @@ public final class Stream extends FileInputStream {
 
     /**
      * Seek
+     *
      * @param offset position to seek
      */
     public void Seek(int offset) {
@@ -32,6 +34,7 @@ public final class Stream extends FileInputStream {
 
     /**
      * Read integer
+     *
      * @return int
      * @throws IOException
      */
@@ -48,6 +51,7 @@ public final class Stream extends FileInputStream {
 
     /**
      * Read string
+     *
      * @param size of the string
      * @return String containg the bytes
      */
@@ -60,6 +64,7 @@ public final class Stream extends FileInputStream {
 
     /**
      * Read long
+     *
      * @return long
      * @throws IOException
      */

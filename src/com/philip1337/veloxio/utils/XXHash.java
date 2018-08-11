@@ -29,6 +29,7 @@ public class XXHash {
     /**
      * XXHash algorithm
      * - Hash string into a hash64
+     *
      * @param path file path
      * @return long
      * @throws IOException Buffer error
@@ -40,7 +41,7 @@ public class XXHash {
         StreamingXXHash64 hash64 = hasher.newStreamingHash64(VeloxConfig.seed);
 
         // Buffer
-        for (;;) {
+        for (; ; ) {
             int read = in.read(buffer);
             if (read == -1) {
                 break;

@@ -25,6 +25,7 @@ class Provider {
 
     /**
      * Register archive
+     *
      * @param path to the archive
      * @return booolean true if it was successfull
      * @throws FileNotFoundException
@@ -49,6 +50,7 @@ class Provider {
 
     /**
      * Get file
+     *
      * @param path to the file in the vfs
      * @return File
      * @throws IOException File not found
@@ -62,7 +64,7 @@ class Provider {
         //    }
         //});   // Lambda return (I don't know how this works)
 
-        for(HashMap.Entry<String, Archive> entry : archives.entrySet()) {
+        for (HashMap.Entry<String, Archive> entry : archives.entrySet()) {
             Archive archive = entry.getValue();
             if (archive.HasFile(hashedPath)) {
                 return new ArchiveFile(archive, archive.GetEntry(hashedPath), path);

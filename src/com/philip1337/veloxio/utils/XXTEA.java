@@ -25,7 +25,8 @@ public final class XXTEA {
         return (z >>> 5 ^ y << 2) + (y >>> 3 ^ z << 4) ^ (sum ^ y) + (k[p & 3 ^ e] ^ z);
     }
 
-    private XXTEA() {}
+    private XXTEA() {
+    }
 
     public static final byte[] encrypt(byte[] data, byte[] key) {
         if (data.length == 0) {
@@ -34,50 +35,55 @@ public final class XXTEA {
         return toByteArray(
                 encrypt(toIntArray(data, true), toIntArray(fixKey(key), false)), false);
     }
+
     public static final byte[] encrypt(String data, byte[] key) {
         try {
             return encrypt(data.getBytes("UTF-8"), key);
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             return null;
         }
     }
+
     public static final byte[] encrypt(byte[] data, String key) {
         try {
             return encrypt(data, key.getBytes("UTF-8"));
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             return null;
         }
     }
+
     public static final byte[] encrypt(String data, String key) {
         try {
             return encrypt(data.getBytes("UTF-8"), key.getBytes("UTF-8"));
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             return null;
         }
     }
+
     public static final String encryptToBase64String(byte[] data, byte[] key) {
         byte[] bytes = encrypt(data, key);
         if (bytes == null) return null;
         return Base64.encode(bytes);
     }
+
     public static final String encryptToBase64String(String data, byte[] key) {
         byte[] bytes = encrypt(data, key);
         if (bytes == null) return null;
         return Base64.encode(bytes);
     }
+
     public static final String encryptToBase64String(byte[] data, String key) {
         byte[] bytes = encrypt(data, key);
         if (bytes == null) return null;
         return Base64.encode(bytes);
     }
+
     public static final String encryptToBase64String(String data, String key) {
         byte[] bytes = encrypt(data, key);
         if (bytes == null) return null;
         return Base64.encode(bytes);
     }
+
     public static final byte[] decrypt(byte[] data, byte[] key) {
         if (data.length == 0) {
             return data;
@@ -85,57 +91,59 @@ public final class XXTEA {
         return toByteArray(
                 decrypt(toIntArray(data, false), toIntArray(fixKey(key), false)), true);
     }
+
     public static final byte[] decrypt(byte[] data, String key) {
         try {
             return decrypt(data, key.getBytes("UTF-8"));
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             return null;
         }
     }
+
     public static final byte[] decryptBase64String(String data, byte[] key) {
         return decrypt(Base64.decode(data), key);
     }
+
     public static final byte[] decryptBase64String(String data, String key) {
         return decrypt(Base64.decode(data), key);
     }
+
     public static final String decryptToString(byte[] data, byte[] key) {
         try {
             byte[] bytes = decrypt(data, key);
             if (bytes == null) return null;
             return new String(bytes, "UTF-8");
-        }
-        catch (UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             return null;
         }
     }
+
     public static final String decryptToString(byte[] data, String key) {
         try {
             byte[] bytes = decrypt(data, key);
             if (bytes == null) return null;
             return new String(bytes, "UTF-8");
-        }
-        catch (UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             return null;
         }
     }
+
     public static final String decryptBase64StringToString(String data, byte[] key) {
         try {
             byte[] bytes = decrypt(Base64.decode(data), key);
             if (bytes == null) return null;
             return new String(bytes, "UTF-8");
-        }
-        catch (UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             return null;
         }
     }
+
     public static final String decryptBase64StringToString(String data, String key) {
         try {
             byte[] bytes = decrypt(Base64.decode(data), key);
             if (bytes == null) return null;
             return new String(bytes, "UTF-8");
-        }
-        catch (UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             return null;
         }
     }
@@ -189,8 +197,7 @@ public final class XXTEA {
         byte[] fixedkey = new byte[16];
         if (key.length < 16) {
             System.arraycopy(key, 0, fixedkey, 0, key.length);
-        }
-        else {
+        } else {
             System.arraycopy(key, 0, fixedkey, 0, 16);
         }
         return fixedkey;
@@ -205,8 +212,7 @@ public final class XXTEA {
         if (includeLength) {
             result = new int[n + 1];
             result[n] = data.length;
-        }
-        else {
+        } else {
             result = new int[n];
         }
         n = data.length;

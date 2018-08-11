@@ -4,9 +4,7 @@ import com.philip1337.veloxio.utils.XXTEA;
 import net.jpountz.lz4.LZ4Factory;
 import net.jpountz.lz4.LZ4FastDecompressor;
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 
 class ArchiveFile {
@@ -27,9 +25,10 @@ class ArchiveFile {
 
     /**
      * File constructor
+     *
      * @param archive parent of the file
-     * @param entry entry data
-     * @param path effective path for the file
+     * @param entry   entry data
+     * @param path    effective path for the file
      */
     public ArchiveFile(Archive archive, ArchiveEntry entry, String path) {
         this.archive = archive;
@@ -39,6 +38,7 @@ class ArchiveFile {
 
     /**
      * Get file buffer
+     *
      * @return byte array (containing the buffer)
      */
     private byte[] GetFromContainer() throws IOException {

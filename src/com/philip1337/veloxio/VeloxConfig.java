@@ -25,6 +25,6 @@ public class VeloxConfig {
      * 1 << 2 | CRYPT
      */
     public static final int RAW = 1;            // 0001
-    public static final int COMPRESSED   = 2;   // 0010
+    public static final int COMPRESSED = 2;   // 0010
     public static final int CRYPT = 4;          // 0100
 }
