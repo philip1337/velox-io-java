@@ -18,6 +18,9 @@ sourceSets {
 dependencies{
 	// https://mvnrepository.com/artifact/org.lz4/lz4-java
 	compile group: 'org.lz4', name: 'lz4-java', version: '1.4.1'
+	
+	// https://mvnrepository.com/artifact/commons-cli/commons-cli
+	compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
 }
 
 version = '0.0.1'
