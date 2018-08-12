@@ -21,6 +21,11 @@ public final class Stream extends FileInputStream {
     public Stream(String name) throws FileNotFoundException {
         super(name);
         this.offset = 0;
+        try {
+            this.getChannel().position(0);
+        } catch (IOException e) {
+            // Usually not happening
+        }
     }
 
     /**
@@ -39,11 +44,12 @@ public final class Stream extends FileInputStream {
      * @throws IOException
      */
     public final int ReadInt() throws IOException {
-        byte[] bytes = new byte[3];
-        if (this.read(bytes, offset += 3, 3) != 3)
-            throw new IOException("Failed to read int");
+        byte[] bytes = new byte[4];
+        if (this.read(bytes, 0, 4) != 4)
+            throw new IOException("Failed to read int position: " + this.getChannel().position() + " eof: " +
+                                  this.getChannel().size());
 
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
         buffer.put(bytes);
         buffer.flip();//need flip
         return buffer.getInt();
@@ -57,7 +63,7 @@ public final class Stream extends FileInputStream {
      */
     public final String ReadString(int size) throws IOException {
         byte[] buffer = new byte[size];
-        if (this.read(buffer, offset += size, size) != size)
+        if (this.read(buffer, 0, size) != size)
             throw new IOException("Failed to read string");
         return new String(buffer, StandardCharsets.UTF_8);
     }
@@ -70,7 +76,7 @@ public final class Stream extends FileInputStream {
      */
     public final long ReadLong() throws IOException {
         byte[] bytes = new byte[8];
-        if (this.read(bytes, offset += 8, 8) != 8)
+        if (this.read(bytes, 0, 8) != 8)
             throw new IOException("Failed to read long");
 
         ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);

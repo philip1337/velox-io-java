@@ -1,5 +1,6 @@
 package com.philip1337.veloxio;
 
+import com.philip1337.veloxio.utils.Stream;
 import com.philip1337.veloxio.utils.XXTEA;
 import net.jpountz.lz4.LZ4Factory;
 import net.jpountz.lz4.LZ4FastDecompressor;
@@ -7,7 +8,7 @@ import net.jpountz.lz4.LZ4FastDecompressor;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-class ArchiveFile {
+public class ArchiveFile {
     /**
      * Archive
      */
@@ -42,10 +43,14 @@ class ArchiveFile {
      * @return byte array (containing the buffer)
      */
     private byte[] GetFromContainer() throws IOException {
-        DataInputStream stream = new DataInputStream(this.archive.GetHandle());
+        Stream stream = this.archive.GetHandle();
 
+        // Set offset
+        stream.getChannel().position(this.entry.offset);
+
+        // Read
         byte[] buffer = new byte[this.entry.size];
-        int read = stream.read(buffer, this.entry.offset, this.entry.size);
+        int read = stream.read(buffer, 0, this.entry.size);
         if (read != this.entry.size)
             throw new IOException("Failed to read file from archive: " + archive.GetPath());
 
@@ -56,20 +61,16 @@ class ArchiveFile {
         byte[] buffer = GetFromContainer();
 
         if ((entry.flags & VeloxConfig.CRYPT) == VeloxConfig.CRYPT) {
-            // ENCRYPTED
+            // CRYPT
             buffer = XXTEA.decrypt(buffer, path.getBytes());
         }
 
-        if ((entry.flags & VeloxConfig.COMPRESSED) == VeloxConfig.COMPRESSED) {
+        if ((entry.flags & VeloxConfig.COMPRESS) == VeloxConfig.COMPRESS) {
             // COMPRESSED
             LZ4Factory factory = LZ4Factory.fastestInstance();
             LZ4FastDecompressor decompressor = factory.fastDecompressor();
             byte[] newBuffer = new byte[entry.diskSize];
             int decompressedLength = decompressor.decompress(buffer, 0, newBuffer, 0, entry.diskSize);
-            if (decompressedLength != entry.size) {
-                // Something went wrong here
-                throw new IOException("Failed to decompress: " + path);
-            }
             buffer = newBuffer; // Move the buffer
         }
 

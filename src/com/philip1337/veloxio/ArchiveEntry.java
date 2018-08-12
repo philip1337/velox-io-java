@@ -25,4 +25,9 @@ class ArchiveEntry {
      * Size
      */
     public int size;
+
+    /**
+     * Decrypted size
+     */
+    public int decryptedSize;
 }

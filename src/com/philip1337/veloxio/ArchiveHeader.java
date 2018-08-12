@@ -1,6 +1,6 @@
 package com.philip1337.veloxio;
 
-public class ArchiveHeader {
+class ArchiveHeader {
     /**
      * Containing the file count
      */

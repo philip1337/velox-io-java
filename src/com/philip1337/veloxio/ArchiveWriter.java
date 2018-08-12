@@ -4,9 +4,11 @@ import com.philip1337.veloxio.utils.XXHash;
 import com.philip1337.veloxio.utils.XXTEA;
 import net.jpountz.lz4.LZ4Compressor;
 import net.jpountz.lz4.LZ4Factory;
+import net.jpountz.lz4.LZ4FastDecompressor;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.util.HashMap;
 
 public class ArchiveWriter {
@@ -66,30 +68,19 @@ public class ArchiveWriter {
      * @return
      */
     public int GetArchiveHeaderLength() {
-        return (2 * 4) + VeloxConfig.magic.length();
+        return (2 * 4) + VeloxConfig.magic.getBytes().length;
     }
 
     /**
      * Write file
      */
     public boolean WriteFile(String path, String diskPath, int flags) throws IOException {
-        // Hashed path
-        long hashedPath = hasher.GetPath(path);
-
-        // File
-        File file = new File(diskPath);
-        FileInputStream input = new FileInputStream(file);
-
-        // Read into byte array
-        byte[] buffer = new byte[(int) file.length()];
-        int offset = 0;
-        int numRead = 0;
-        while (numRead >= 0) {
-            numRead = input.read(buffer, offset, buffer.length - offset);
-            offset += numRead;
-        }
+        // Read file into buffer
+        byte[] buffer = Files.readAllBytes(new File(diskPath).toPath());
 
         ArchiveEntry entry = new ArchiveEntry();
+        entry.path = hasher.GetPath(path);
+        entry.offset = (int)output.getChannel().position();
         entry.flags = flags;
         entry.diskSize = buffer.length;
         entry.size = entry.diskSize;
@@ -98,30 +89,34 @@ public class ArchiveWriter {
         //    // RAW
         //}
 
-        if ((entry.flags & VeloxConfig.COMPRESSED) == VeloxConfig.COMPRESSED) {
+        if ((entry.flags & VeloxConfig.COMPRESS) == VeloxConfig.COMPRESS) {
             // COMPRESSED
             LZ4Factory factory = LZ4Factory.fastestInstance();
             LZ4Compressor compressor = factory.fastCompressor();
 
-            int decompressedLength = (int) file.length();
-
-            int maxCompressedLength = compressor.maxCompressedLength(decompressedLength);
+            int maxCompressedLength = compressor.maxCompressedLength(entry.diskSize);
             byte[] compressed = new byte[maxCompressedLength];
-            entry.size = compressor.compress(buffer, 0, decompressedLength, compressed, 0,
-                    maxCompressedLength);
-            buffer = compressed;
+            entry.size = compressor.compress(buffer, 0, entry.diskSize, compressed, 0,
+                                                       maxCompressedLength);
+
+            // Get compressed buffer
+            ByteBuffer wCompressed = ByteBuffer.wrap(compressed);
+            buffer = new byte[entry.size];
+            wCompressed.get(buffer, 0, entry.size);
         }
 
         if ((entry.flags & VeloxConfig.CRYPT) == VeloxConfig.CRYPT) {
-            // ENCRYPTED
+            int test = buffer.length;
             buffer = XXTEA.encrypt(buffer, path.getBytes());
+            entry.decryptedSize = entry.size;
+            entry.size = buffer.length;
         }
 
         // Write to file
         output.write(buffer);
 
         // Add file to archive index
-        files.put(hashedPath, entry);
+        files.put(entry.path, entry);
         return true;
     }
 
@@ -131,7 +126,7 @@ public class ArchiveWriter {
      * @return boolean true if success
      */
     public boolean WriteIndex() {
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        ByteBuffer buffer;
 
         try {
             header.offset = (int) output.getChannel().position();
@@ -140,29 +135,38 @@ public class ArchiveWriter {
                 ArchiveEntry entry = set.getValue();
 
                 // Path
-                buffer.reset();
+                buffer = ByteBuffer.allocate(Long.BYTES);
                 buffer.putLong(entry.path);
                 output.write(buffer.array());
+                buffer.clear();
+
+                // We need an int buffer from now on
+                buffer = ByteBuffer.allocate(4);
 
                 // Disk size
-                buffer.reset();
                 buffer.putInt(entry.diskSize);
                 output.write(buffer.array());
+                buffer.clear();
 
                 // Flags
-                buffer.reset();
                 buffer.putInt(entry.flags);
                 output.write(buffer.array());
+                buffer.clear();
 
                 // Offset
-                buffer.reset();
                 buffer.putInt(entry.offset);
                 output.write(buffer.array());
+                buffer.clear();
 
                 // Size
-                buffer.reset();
                 buffer.putInt(entry.size);
                 output.write(buffer.array());
+                buffer.clear();
+
+                // Decrypted size
+                buffer.putInt(entry.decryptedSize);
+                output.write(buffer.array());
+                buffer.clear();
             }
         } catch (IOException e) {
             return false;
@@ -180,19 +184,20 @@ public class ArchiveWriter {
         header.count = files.size();
         header.magic = VeloxConfig.magic;
 
-        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        // Int buffer
+        ByteBuffer buffer = ByteBuffer.allocate(4);
         try {
             this.output.getChannel().position(0);
 
             // Count
-            buffer.reset();
             buffer.putInt(header.count);
             output.write(buffer.array());
+            buffer.clear();
 
             // Offset
-            buffer.reset();
             buffer.putInt(header.offset);
             output.write(buffer.array());
+            buffer.clear();
 
             // Magic
             output.write(header.magic.getBytes());

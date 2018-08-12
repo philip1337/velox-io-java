@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 
-class Provider {
+public class Provider {
     /**
      * Archives
      */
@@ -42,7 +42,7 @@ class Provider {
                 return true;
             }
         } catch (IOException e) {
-            // e.printStackTrace();
+            e.printStackTrace();
         }
 
         return false;

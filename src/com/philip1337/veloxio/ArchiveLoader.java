@@ -5,7 +5,7 @@ import com.philip1337.veloxio.utils.XXHash;
 
 import java.io.IOException;
 
-public class ArchiveLoader {
+class ArchiveLoader {
     /**
      * Hasher
      */
@@ -43,10 +43,7 @@ public class ArchiveLoader {
             return false;
 
         // Failed to read entries
-        if (!ReadEntries((a)))
-            return false;
-
-        return true;
+        return ReadEntries((a));
     }
 
     /**
@@ -61,11 +58,13 @@ public class ArchiveLoader {
         ArchiveHeader header = new ArchiveHeader();
         header.count = stream.ReadInt();
         header.offset = stream.ReadInt();
-        header.magic = stream.ReadString(VeloxConfig.magic.length());
+        header.magic = stream.ReadString(VeloxConfig.magic.getBytes().length);
 
         // Invalid magic
-        if (!header.magic.equals(VeloxConfig.magic))
+        if (!header.magic.equals(VeloxConfig.magic)) {
+            System.out.printf("Invalid magic %s != %s. \n", header.magic, VeloxConfig.magic);
             return false;
+        }
 
         a.SetHeader(header);
         return true;
@@ -83,24 +82,24 @@ public class ArchiveLoader {
         ArchiveHeader header = a.GetHeader();
 
         // Seek to offset where the header starts
-        stream.Seek(header.offset);
+        stream.getChannel().position(header.offset);
 
         // Read index
-        for (int i = 0; i <= header.count; i++) {
+        for (int i = 0; i < header.count; i++) {
             // Archive entry
             ArchiveEntry entry = new ArchiveEntry();
 
             // This has to be in the exact order to work (we read bytes by bytes)
-            entry.path = stream.ReadLong();
-            entry.diskSize = stream.ReadInt();
-            entry.flags = stream.ReadInt();
-            entry.offset = stream.ReadInt();
-            entry.size = stream.ReadInt();
+            entry.path = stream.ReadLong();     // 8
+            entry.diskSize = stream.ReadInt();  // 4
+            entry.flags = stream.ReadInt();     // 4
+            entry.offset = stream.ReadInt();    // 4
+            entry.size = stream.ReadInt();      // 4
+            entry.decryptedSize = stream.ReadInt(); // 4
 
             // Register file
             a.RegisterFile(entry);
         }
-
         return true;
     }
 }
