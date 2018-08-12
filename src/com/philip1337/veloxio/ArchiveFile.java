@@ -5,7 +5,6 @@ import com.philip1337.veloxio.utils.XXTEA;
 import net.jpountz.lz4.LZ4Factory;
 import net.jpountz.lz4.LZ4FastDecompressor;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 
 public class ArchiveFile {
@@ -27,14 +26,14 @@ public class ArchiveFile {
     /**
      * File constructor
      *
-     * @param archive parent of the file
-     * @param entry   entry data
-     * @param path    effective path for the file
+     * @param pArchive parent of the file
+     * @param pEntry   entry data
+     * @param pPath    effective path for the file
      */
-    public ArchiveFile(Archive archive, ArchiveEntry entry, String path) {
-        this.archive = archive;
-        this.entry = entry;
-        this.path = path;
+    public ArchiveFile(Archive pArchive, ArchiveEntry pEntry, String pPath) {
+        this.archive = pArchive;
+        this.entry = pEntry;
+        this.path = pPath;
     }
 
     /**
@@ -42,8 +41,8 @@ public class ArchiveFile {
      *
      * @return byte array (containing the buffer)
      */
-    private byte[] GetFromContainer() throws IOException {
-        Stream stream = this.archive.GetHandle();
+    private byte[] getFromContainer() throws IOException {
+        Stream stream = this.archive.getHandle();
 
         // Set offset
         stream.getChannel().position(this.entry.offset);
@@ -52,13 +51,13 @@ public class ArchiveFile {
         byte[] buffer = new byte[this.entry.size];
         int read = stream.read(buffer, 0, this.entry.size);
         if (read != this.entry.size)
-            throw new IOException("Failed to read file from archive: " + archive.GetPath());
+            throw new IOException("Failed to read file from archive: " + archive.getPath());
 
         return buffer;
     }
 
-    public byte[] Get() throws IOException {
-        byte[] buffer = GetFromContainer();
+    public byte[] get() throws IOException {
+        byte[] buffer = getFromContainer();
 
         if ((entry.flags & VeloxConfig.CRYPT) == VeloxConfig.CRYPT) {
             // CRYPT

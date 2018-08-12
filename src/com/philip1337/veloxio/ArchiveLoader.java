@@ -23,7 +23,7 @@ class ArchiveLoader {
      *
      * @return XXHash
      */
-    public XXHash GetHasher() {
+    public XXHash getHasher() {
         return hasher;
     }
 
@@ -31,34 +31,34 @@ class ArchiveLoader {
      * Load archive
      *
      * @param path String
-     * @param a    Archive
+     * @param pArchive    Archive
      * @return boolean true if success
      * @throws IOException if archive stream is invalid
      */
-    public boolean Load(String path, Archive a) throws IOException {
-        a.SetPath(path);
+    public boolean load(String path, Archive pArchive) throws IOException {
+        pArchive.setPath(path);
 
         // Validate header header
-        if (!ValidateHeader(a))
+        if (!validateHeader(pArchive))
             return false;
 
         // Failed to read entries
-        return ReadEntries((a));
+        return readEntries((pArchive));
     }
 
     /**
      * Validate header
      *
-     * @param a Archive container
+     * @param pArchive Archive container
      * @return boolean true if everything went well
      */
-    private boolean ValidateHeader(Archive a) throws IOException {
-        Stream stream = a.GetHandle();
+    private boolean validateHeader(Archive pArchive) throws IOException {
+        Stream stream = pArchive.getHandle();
 
         ArchiveHeader header = new ArchiveHeader();
-        header.count = stream.ReadInt();
-        header.offset = stream.ReadInt();
-        header.magic = stream.ReadString(VeloxConfig.magic.getBytes().length);
+        header.count = stream.readInt();
+        header.offset = stream.readInt();
+        header.magic = stream.readString(VeloxConfig.magic.getBytes().length);
 
         // Invalid magic
         if (!header.magic.equals(VeloxConfig.magic)) {
@@ -66,20 +66,20 @@ class ArchiveLoader {
             return false;
         }
 
-        a.SetHeader(header);
+        pArchive.setHeader(header);
         return true;
     }
 
     /**
      * Read entries from index
      *
-     * @param a Archive container
+     * @param pArchive Archive container
      * @return boolean if success true
      * @throws IOException if stream is invalid
      */
-    private boolean ReadEntries(Archive a) throws IOException {
-        Stream stream = a.GetHandle();
-        ArchiveHeader header = a.GetHeader();
+    private boolean readEntries(Archive pArchive) throws IOException {
+        Stream stream = pArchive.getHandle();
+        ArchiveHeader header = pArchive.getHeader();
 
         // Seek to offset where the header starts
         stream.getChannel().position(header.offset);
@@ -90,15 +90,15 @@ class ArchiveLoader {
             ArchiveEntry entry = new ArchiveEntry();
 
             // This has to be in the exact order to work (we read bytes by bytes)
-            entry.path = stream.ReadLong();     // 8
-            entry.diskSize = stream.ReadInt();  // 4
-            entry.flags = stream.ReadInt();     // 4
-            entry.offset = stream.ReadInt();    // 4
-            entry.size = stream.ReadInt();      // 4
-            entry.decryptedSize = stream.ReadInt(); // 4
+            entry.path = stream.readLong();     // 8
+            entry.diskSize = stream.readInt();  // 4
+            entry.flags = stream.readInt();     // 4
+            entry.offset = stream.readInt();    // 4
+            entry.size = stream.readInt();      // 4
+            entry.decryptedSize = stream.readInt(); // 4
 
             // Register file
-            a.RegisterFile(entry);
+            pArchive.registerFile(entry);
         }
         return true;
     }

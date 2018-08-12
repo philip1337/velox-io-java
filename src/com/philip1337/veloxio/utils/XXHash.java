@@ -30,12 +30,12 @@ public class XXHash {
      * XXHash algorithm
      * - Hash string into a hash64
      *
-     * @param path file path
+     * @param pPath file path
      * @return long
      * @throws IOException Buffer error
      */
-    public long GetPath(String path) throws IOException {
-        ByteArrayInputStream in = new ByteArrayInputStream(path.getBytes("UTF-8"));
+    public long getPath(String pPath) throws IOException {
+        ByteArrayInputStream in = new ByteArrayInputStream(pPath.getBytes("UTF-8"));
 
         // Build hash
         StreamingXXHash64 hash64 = hasher.newStreamingHash64(VeloxConfig.seed);

@@ -15,11 +15,11 @@ public final class Stream extends FileInputStream {
     /**
      * Stream
      *
-     * @param name String
+     * @param pName String
      * @throws FileNotFoundException if file not found
      */
-    public Stream(String name) throws FileNotFoundException {
-        super(name);
+    public Stream(String pName) throws FileNotFoundException {
+        super(pName);
         this.offset = 0;
         try {
             this.getChannel().position(0);
@@ -33,7 +33,7 @@ public final class Stream extends FileInputStream {
      *
      * @param offset position to seek
      */
-    public void Seek(int offset) {
+    public void seek(int offset) {
         this.offset = offset;
     }
 
@@ -43,7 +43,7 @@ public final class Stream extends FileInputStream {
      * @return int
      * @throws IOException
      */
-    public final int ReadInt() throws IOException {
+    public final int readInt() throws IOException {
         byte[] bytes = new byte[4];
         if (this.read(bytes, 0, 4) != 4)
             throw new IOException("Failed to read int position: " + this.getChannel().position() + " eof: " +
@@ -61,7 +61,7 @@ public final class Stream extends FileInputStream {
      * @param size of the string
      * @return String containg the bytes
      */
-    public final String ReadString(int size) throws IOException {
+    public final String readString(int size) throws IOException {
         byte[] buffer = new byte[size];
         if (this.read(buffer, 0, size) != size)
             throw new IOException("Failed to read string");
@@ -74,7 +74,7 @@ public final class Stream extends FileInputStream {
      * @return long
      * @throws IOException
      */
-    public final long ReadLong() throws IOException {
+    public final long readLong() throws IOException {
         byte[] bytes = new byte[8];
         if (this.read(bytes, 0, 8) != 8)
             throw new IOException("Failed to read long");

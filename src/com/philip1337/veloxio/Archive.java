@@ -29,19 +29,19 @@ class Archive {
     /**
      * Archive constructor
      */
-    public Archive(String path) throws FileNotFoundException {
+    public Archive(String pPath) throws FileNotFoundException {
         this.files = new HashMap();
-        this.path = path;
+        this.path = pPath;
         this.handle = new Stream(path);
     }
 
     /**
      * Set path
      *
-     * @param path to the file / archive container on disk
+     * @param pPath to the file / archive container on disk
      */
-    public void SetPath(String path) {
-        this.path = path;
+    public void setPath(String pPath) {
+        this.path = pPath;
     }
 
     /**
@@ -49,7 +49,7 @@ class Archive {
      *
      * @return
      */
-    public String GetPath() {
+    public String getPath() {
         return path;
     }
 
@@ -58,18 +58,18 @@ class Archive {
      *
      * @return true if archive owns the file
      */
-    public boolean HasFile(long path) {
-        return files.containsKey(path);
+    public boolean hasFile(long pPath) {
+        return files.containsKey(pPath);
     }
 
     /**
      * Get archive entry
      *
-     * @param path to the file
+     * @param pPath to the file
      * @return ArchiveEntry for the file
      */
-    public ArchiveEntry GetEntry(long path) {
-        return files.get(path);
+    public ArchiveEntry getEntry(long pPath) {
+        return files.get(pPath);
     }
 
     /**
@@ -77,26 +77,26 @@ class Archive {
      *
      * @return FileReader
      */
-    public Stream GetHandle() {
+    public Stream getHandle() {
         return this.handle;
     }
 
     /**
      * Register file
      *
-     * @param entry ArchiveEntry from the file
+     * @param pEntry ArchiveEntry from the file
      */
-    public void RegisterFile(ArchiveEntry entry) {
-        files.put(entry.path, entry);
+    public void registerFile(ArchiveEntry pEntry) {
+        files.put(pEntry.path, pEntry);
     }
 
     /**
      * Archive header
      *
-     * @param header ArchiveHeader
+     * @param pHeader ArchiveHeader
      */
-    public void SetHeader(ArchiveHeader header) {
-        this.header = header;
+    public void setHeader(ArchiveHeader pHeader) {
+        this.header = pHeader;
     }
 
     /**
@@ -104,7 +104,7 @@ class Archive {
      *
      * @return ArchiveHeader containing archive informations
      */
-    public ArchiveHeader GetHeader() {
+    public ArchiveHeader getHeader() {
         return this.header;
     }
 }

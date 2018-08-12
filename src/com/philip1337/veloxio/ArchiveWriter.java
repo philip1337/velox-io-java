@@ -4,7 +4,6 @@ import com.philip1337.veloxio.utils.XXHash;
 import com.philip1337.veloxio.utils.XXTEA;
 import net.jpountz.lz4.LZ4Compressor;
 import net.jpountz.lz4.LZ4Factory;
-import net.jpountz.lz4.LZ4FastDecompressor;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -45,18 +44,18 @@ public class ArchiveWriter {
     /**
      * Constructor
      *
-     * @param path String to the output
+     * @param pPath String to the output
      */
-    public ArchiveWriter(String path) throws FileNotFoundException {
+    public ArchiveWriter(String pPath) throws FileNotFoundException {
         this.files = new HashMap();
-        this.path = path;
+        this.path = pPath;
         this.hasher = new XXHash();
         this.header = new ArchiveHeader();
         this.output = new FileOutputStream(path);
 
         // Initial position after skipping the archive header padding
         try {
-            this.output.getChannel().position(GetArchiveHeaderLength());
+            this.output.getChannel().position(getArchiveHeaderLength());
         } catch (IOException e) {
             throw new FileNotFoundException("Invalid file stream: " + this.path);
         }
@@ -67,21 +66,21 @@ public class ArchiveWriter {
      *
      * @return
      */
-    public int GetArchiveHeaderLength() {
+    public int getArchiveHeaderLength() {
         return (2 * 4) + VeloxConfig.magic.getBytes().length;
     }
 
     /**
      * Write file
      */
-    public boolean WriteFile(String path, String diskPath, int flags) throws IOException {
+    public boolean writeFile(String pPath, String pDiskPath, int pFlags) throws IOException {
         // Read file into buffer
-        byte[] buffer = Files.readAllBytes(new File(diskPath).toPath());
+        byte[] buffer = Files.readAllBytes(new File(pDiskPath).toPath());
 
         ArchiveEntry entry = new ArchiveEntry();
-        entry.path = hasher.GetPath(path);
+        entry.path = hasher.getPath(pPath);
         entry.offset = (int)output.getChannel().position();
-        entry.flags = flags;
+        entry.flags = pFlags;
         entry.diskSize = buffer.length;
         entry.size = entry.diskSize;
 
@@ -107,7 +106,7 @@ public class ArchiveWriter {
 
         if ((entry.flags & VeloxConfig.CRYPT) == VeloxConfig.CRYPT) {
             int test = buffer.length;
-            buffer = XXTEA.encrypt(buffer, path.getBytes());
+            buffer = XXTEA.encrypt(buffer, pPath.getBytes());
             entry.decryptedSize = entry.size;
             entry.size = buffer.length;
         }
@@ -125,7 +124,7 @@ public class ArchiveWriter {
      *
      * @return boolean true if success
      */
-    public boolean WriteIndex() {
+    public boolean writeIndex() {
         ByteBuffer buffer;
 
         try {
@@ -180,7 +179,7 @@ public class ArchiveWriter {
      *
      * @return boolean true if success
      */
-    public boolean WriteHeader() {
+    public boolean writeHeader() {
         header.count = files.size();
         header.magic = VeloxConfig.magic;
 
