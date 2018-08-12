@@ -22,7 +22,7 @@ class Main {
 
         // add t option
         options.addOption("help", false, "Print this message");
-        options.addOption("pack", true, "Archive path specified path");
+        options.addOption("pack", true, "Archive path");
         options.addOption("validate", true, "Validate an archive (name of the file)");
         options.addOption("create", true, "Path to an xml file.");
 
@@ -42,14 +42,14 @@ class Main {
         }
 
         // Pack action
-        if (cmd.hasOption("pack")) {
+        if (cmd.hasOption("create")) {
             // No xml defined
-            if (!cmd.hasOption("xml")) {
-                System.out.println("You need to specify a xml for that action.");
+            if (!cmd.hasOption("pack")) {
+                System.out.println("You need to specify a pack for that action.");
                 return;
             }
 
-            new ActionPack(cmd.getOptionValue("xml"), 
+            new ActionPack(cmd.getOptionValue("create"), 
                            cmd.getOptionValue("pack")).run();
             return;
         }
