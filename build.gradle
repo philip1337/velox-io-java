@@ -2,6 +2,8 @@ apply plugin: 'java'
 apply plugin: 'java-library'
 apply plugin: 'distribution'
 
+
+
 configurations {
 	provided
 }
@@ -27,7 +29,10 @@ version = '0.0.1'
 
 jar {
 	manifest {
-		attributes('Implementation-Title': project.name,
-				   'Implementation-Version': project.version)
+		attributes 'Main-Class': 'com.philip1337.veloxio.archiver.Main'
 	}
+	from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
+
